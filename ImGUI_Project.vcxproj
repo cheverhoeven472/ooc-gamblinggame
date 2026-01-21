@@ -129,8 +129,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Actions.h" />
+    <ClInclude Include="Action.h" />
     <ClInclude Include="app.h" />
+    <ClInclude Include="DoubleDownAction.h" />
+    <ClInclude Include="HitAction.h" />
     <ClInclude Include="imgui-1.92.2b\backends\imgui_impl_dx9.h" />
     <ClInclude Include="imgui-1.92.2b\backends\imgui_impl_win32.h" />
     <ClInclude Include="imgui-1.92.2b\imconfig.h" />
@@ -142,8 +144,10 @@
     <ClInclude Include="player.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Actions.cpp" />
+    <ClCompile Include="Action.cpp" />
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="DoubleDownAction.cpp" />
+    <ClCompile Include="HitAction.cpp" />
     <ClCompile Include="imgui-1.92.2b\backends\imgui_impl_dx9.cpp" />
     <ClCompile Include="imgui-1.92.2b\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="imgui-1.92.2b\imgui.cpp" />
@@ -153,6 +157,8 @@
     <ClCompile Include="imgui-1.92.2b\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="StandAction.cpp" />
+    <ClCompile Include="StandAction.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui-1.92.2b\misc\debuggers\imgui.natstepfilter" />

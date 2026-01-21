@@ -156,7 +156,7 @@ void app::update()
 
     static const int max_name_length = 32;
     static const int max_players = 4;
-    const char kaarten[14] = { '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'B', 'Q', 'K', 'A', 'J' };
+   
 
     static int Players = 0;
     static std::vector<Player> players;
