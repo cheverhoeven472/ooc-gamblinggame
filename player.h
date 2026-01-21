@@ -12,7 +12,11 @@ public:
 	std::string get_name();
 	int get_inzet();
 	int get_hand_value();
-private:
+	char Player_kaart[10];
+	int kaart_index = 0;
+	void set_stood(bool value);
+	bool has_stood();
+	bool stood = false;
 	std::string name;
 	int inzet;
 	int hand_value;

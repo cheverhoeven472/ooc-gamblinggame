@@ -2,7 +2,7 @@
 #include "Action.h"
 
 class StandAction : public Action {
-public:
+    public:
     StandAction();
     ~StandAction() override;
 

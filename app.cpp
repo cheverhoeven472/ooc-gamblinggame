@@ -3,6 +3,9 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include "HitAction.h"
+#include "StandAction.h"
+#include "DoubleDownAction.h"
 
 // Data
 static LPDIRECT3D9              g_pD3D = nullptr;
@@ -21,10 +24,10 @@ app::app()
 {
     // Make process DPI aware and obtain main monitor scale
     ImGui_ImplWin32_EnableDpiAwareness();
-    float main_scale = ImGui_ImplWin32_GetDpiScaleForMonitor(::MonitorFromPoint(POINT{0, 0}, MONITOR_DEFAULTTOPRIMARY));
+    float main_scale = ImGui_ImplWin32_GetDpiScaleForMonitor(::MonitorFromPoint(POINT{ 0, 0 }, MONITOR_DEFAULTTOPRIMARY));
 
     // Create application window
-    wc = {sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr};
+    wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
     ::RegisterClassExW(&wc);
     hwnd = ::CreateWindowW(wc.lpszClassName, L"blackjack", WS_OVERLAPPEDWINDOW, 100, 100, (int)(1280 * main_scale), (int)(800 * main_scale), nullptr, nullptr, wc.hInstance, nullptr);
 
@@ -43,7 +46,7 @@ app::app()
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
 
@@ -52,7 +55,7 @@ app::app()
     // ImGui::StyleColorsLight();
 
     // Setup scaling
-    ImGuiStyle &style = ImGui::GetStyle();
+    ImGuiStyle& style = ImGui::GetStyle();
     style.ScaleAllSizes(main_scale); // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
     style.FontScaleDpi = main_scale; // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this unnecessary. We leave both here for documentation purpose)
 
@@ -156,11 +159,16 @@ void app::update()
 
     static const int max_name_length = 32;
     static const int max_players = 4;
-   
 
     static int Players = 0;
     static std::vector<Player> players;
-    static char name_buffers[max_players][max_name_length] = { "" };  // ← Ook STATIC en BUITEN de if! 
+    static char name_buffers[max_players][max_name_length] = { "" };
+    static int inzet_buffers[max_players] = { 0 };
+
+    // Actions
+    static HitAction hitAction;
+    static StandAction standAction;
+    static DoubleDownAction doubleDownAction;
 
     if (player_init_window) {
         static int Temp_Players = 1;
@@ -179,15 +187,13 @@ void app::update()
         ImGui::End();
     }
 
-    static int inzet_buffers[max_players] = { 0 };  // ← Nieuw! Buffer voor inzet
-
     if (Player_Names_Window) {
         ImGui::SetNextWindowSize(ImVec2(500, Players * 31 + 55));
         ImGui::Begin("Player Names");
 
         for (int i = 0; i < Players; i++) {
             std::string name_label = "Player " + std::to_string(i + 1) + "##name" + std::to_string(i);
-            std::string inzet_label = "inzet##" + std::to_string(i);  // ← Unieke ID per veld
+            std::string inzet_label = "inzet##" + std::to_string(i);
 
             ImGui::SetNextItemWidth(100);
             ImGui::InputText(name_label.c_str(), name_buffers[i], max_name_length);
@@ -203,30 +209,66 @@ void app::update()
 
             for (int i = 0; i < Players; i++) {
                 Player newPlayer("", i + 1);
+				newPlayer.set_hand_value(0);
                 newPlayer.set_name(name_buffers[i]);
-                newPlayer.set_inzet(inzet_buffers[i]);  // ← Koppel inzet aan Player
+                newPlayer.set_inzet(inzet_buffers[i]);
                 players.push_back(newPlayer);
             }
         }
         ImGui::End();
     }
-    if (game_window) {
-        // 1920 1080 
 
+    if (game_window) {
         for (int i = 0; i < players.size(); i++) {
-			ImGui::SetNextWindowPos(ImVec2(10 + i * 475, 670));
-			ImGui::SetNextWindowSize(ImVec2(465, 300));
-			ImGui::Begin(("Player " + std::to_string(i + 1) + " - " + players[i].get_name()).c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse| ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoBringToFrontOnFocus);
-			ImGui::Text(("Inzet: " + std::to_string(players[i].get_inzet())).c_str());
-			ImGui::SameLine();
-            ImGui::Text(" slokken");
+            ImGui::SetNextWindowPos(ImVec2(10 + i * 475, 670));
+            ImGui::SetNextWindowSize(ImVec2(465, 300));
+            ImGui::Begin(("Player " + std::to_string(i + 1) + " - " + players[i].get_name()).c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoBringToFrontOnFocus);
+
+            // Speler info
+            ImGui::Text("Inzet: %d slokken", players[i].get_inzet());
+            ImGui::Text("Hand waarde:  %d", players[i].get_hand_value());
+            ImGui::Text("Kaarten: ");
+            ImGui::SameLine();
+
+            for (int j = 0; j < players[i].kaart_index; j++) {
+                ImGui::Text("%c ", players[i].Player_kaart[j]);
+                ImGui::SameLine();
+            }
+
+            ImGui::NewLine();
+            ImGui::Separator();
+
+            ImGui::PushID(i);
+
+            // Check of buttons disabled moeten zijn
+            bool is_disabled = players[i].has_stood();
+
+            ImGui::BeginDisabled(is_disabled);
+
+            if (ImGui::Button("Hit")) {
+                hitAction.execute(players[i]);
+            }
+            ImGui::SameLine();
+
+            if (ImGui::Button("Stand")) {
+                standAction.execute(players[i]);
+            }
+            ImGui::SameLine();
+
+            if (ImGui::Button("Double Down")) {
+                doubleDownAction.execute(players[i]);
+            }
+
+            ImGui::EndDisabled();
+
+            ImGui::PopID();
 
             ImGui::End();
         }
-	    
     }
-}
     
+}
+
 
 app::~app()
 {

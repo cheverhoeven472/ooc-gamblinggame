@@ -33,3 +33,11 @@ int Player::get_inzet() {
 int Player::get_hand_value() {
 	return Player::hand_value;
 }
+
+void Player::set_stood(bool value) {
+	stood = value;
+}
+
+bool Player::has_stood() {
+	return stood;
+}
