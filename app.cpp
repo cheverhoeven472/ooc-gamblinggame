@@ -6,6 +6,7 @@
 #include "HitAction.h"
 #include "StandAction.h"
 #include "DoubleDownAction.h"
+#include "dealer.h"
 
 // Data
 static LPDIRECT3D9              g_pD3D = nullptr;
@@ -223,6 +224,10 @@ void app::update()
             ImGui::SetNextWindowPos(ImVec2(10 + i * 475, 670));
             ImGui::SetNextWindowSize(ImVec2(465, 300));
             ImGui::Begin(("Player " + std::to_string(i + 1) + " - " + players[i].get_name()).c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoBringToFrontOnFocus);
+
+            for (int k = 0; k < 2; k++) {
+                players[i].Player_kaart[rand() % 13];
+            }
 
             // Speler info
             ImGui::Text("Inzet: %d slokken", players[i].get_inzet());

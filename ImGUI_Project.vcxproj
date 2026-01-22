@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClInclude Include="Action.h" />
     <ClInclude Include="app.h" />
+    <ClInclude Include="dealer.h" />
     <ClInclude Include="DoubleDownAction.h" />
     <ClInclude Include="HitAction.h" />
     <ClInclude Include="imgui-1.92.2b\backends\imgui_impl_dx9.h" />
@@ -147,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="Action.cpp" />
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="dealer.cpp" />
     <ClCompile Include="DoubleDownAction.cpp" />
     <ClCompile Include="HitAction.cpp" />
     <ClCompile Include="imgui-1.92.2b\backends\imgui_impl_dx9.cpp" />
