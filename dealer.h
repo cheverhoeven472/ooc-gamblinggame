@@ -7,9 +7,9 @@ public:
     ~Dealer() override;
 
     // Dealer specifieke functies
-    void verberg_kaart();      // Verberg de eerste kaart
-    void toon_kaart();         // Toon de verborgen kaart
-    bool is_kaart_verborgen(); // Check of kaart verborgen is
+    void verberg_kaart();     
+    void toon_kaart();        
+    bool is_kaart_verborgen();
 
     bool moet_hitten();
 

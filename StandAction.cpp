@@ -7,6 +7,5 @@ StandAction::StandAction() : Action("Stand") {}
 StandAction::~StandAction() {}
 
 void StandAction::execute(Player& player) {
-    player.set_stood(true);  // ← Zet stood op true
-    std::cout << player.get_name() << " past!" << std::endl;
+    player.set_stood(true);
 }

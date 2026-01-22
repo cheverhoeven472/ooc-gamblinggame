@@ -13,8 +13,6 @@ public:
     virtual void execute(Player& player) = 0;
 
     std::string get_name();
-    
-
-protected:
+   
     std::string name;
 };
