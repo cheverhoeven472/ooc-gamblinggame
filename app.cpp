@@ -8,6 +8,11 @@
 #include "DoubleDownAction.h"
 #include "dealer.h"
 #include "Action.h"
+#include <d3d9.h>
+#include "Photo_handelig.h"
+#include <ctime>  
+
+
 
 // Data
 static LPDIRECT3D9              g_pD3D = nullptr;
@@ -33,6 +38,19 @@ app::app()
     ::RegisterClassExW(&wc);
     hwnd = ::CreateWindowW(wc.lpszClassName, L"blackjack", WS_OVERLAPPEDWINDOW, 100, 100, (int)(1280 * main_scale), (int)(800 * main_scale), nullptr, nullptr, wc.hInstance, nullptr);
 
+
+
+
+    
+    
+        // ============ VOEG DIT TOE AAN HET BEGIN ============
+        srand(static_cast<unsigned int>(time(nullptr)));
+        // ============ EINDE ============
+
+        // Make process DPI aware and obtain main monitor scale
+        ImGui_ImplWin32_EnableDpiAwareness();
+        // ... rest van je constructor ...
+    
     // Initialize Direct3D
     if (!CreateDeviceD3D(hwnd))
     {
@@ -154,11 +172,14 @@ void app::run()
 
 void app::update()
 {
+
+    static bool reset = false;
     // Alle state variabelen MOETEN static zijn
     static bool player_init_window = true;
     static bool Player_Names_Window = false;
     static bool game_window = false;
     static bool dealer_window = false;
+	static bool game_over_window = false;
 
     static const int max_name_length = 32;
     static const int max_players = 4;
@@ -168,10 +189,11 @@ void app::update()
     static char name_buffers[max_players][max_name_length] = { "" };
     static int inzet_buffers[max_players] = { 0 };
 
-    // Actions
     static HitAction hitAction;
     static StandAction standAction;
     static DoubleDownAction doubleDownAction;
+
+    
 
     if (player_init_window) {
         static int Temp_Players = 1;
@@ -234,6 +256,11 @@ void app::update()
                 hitAction.starting_hand(players[i]);
                 starting_hand--;
             }
+            if (reset) {
+				starting_hand = players.size();
+				reset = false;
+			}
+
 
             // Speler info
             ImGui::Text("Inzet: %d slokken", players[i].get_inzet());
@@ -294,13 +321,36 @@ void app::update()
             if(players[i].has_stood() && !players[i].player_busted && !players[i].player_blackjack) {
                 ImGui::Text("Stood!");
 			}
+
             if(players[i].player_busted) {
                 ImGui::Text("Busted!");
+				
+                if (players[i].get_inzet() == 1) {
+                    ImGui::Text("je moet");
+                    ImGui::SameLine();
+                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%d", players[i].get_inzet());  // ← Gebruik %d
+                    ImGui::SameLine();
+                    ImGui::Text("slok nemen");
+                }
+				else if (players[i].get_inzet() > 1) {
+                    ImGui::Text("je moet");
+                    ImGui::SameLine();
+                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%d", players[i].get_inzet());  // ← Gebruik %d
+                    ImGui::SameLine();
+                    ImGui::Text("slokken nemen");
+                }
             }
 
             else if (players[i].player_blackjack) {
                 ImGui::Text("Blackjack!");
-			}
+                int gewonnen_slokken = static_cast<int>(players[i].get_inzet() * 1.5);
+                ImGui::Text("je mag");
+                ImGui::SameLine();
+                ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "%d", gewonnen_slokken);  // ← Gebruik %d
+                ImGui::SameLine();
+                ImGui::Text("slokken uitdelen");
+            }
+
 
             ImGui::End();
         }
@@ -356,18 +406,145 @@ void app::update()
 
         if (all_players_stood && !dealer.has_stood()) {
             dealer.dealer_sequence();
+            game_over_window = true;
+
             
 		}
         if (dealer.has_stood()) {
             ImGui::Text("Hand waarde: %d", dealer.get_hand_value());
             if(dealer.Dealer_busted) {
                 ImGui::Text("Dealer Busted!");
+				
 			}  
         }
         
 
         ImGui::End();
 
+    }
+
+    if(game_over_window) {
+        ImGui::SetNextWindowSize(ImVec2(300, 500));
+		ImGui::SetNextWindowPos(ImVec2(50, 150));
+		ImGui::Begin("Game Over", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoBringToFrontOnFocus);
+		ImGui::Text("Game Over Results:");
+		ImGui::Separator();
+		ImGui::Text("Dealer had: %d", dealer.get_hand_value());
+		ImGui::Separator();
+        for (int i = 0; i < players.size(); i++) {
+            ImGui::Text(players[i].get_name().c_str());
+			ImGui::SameLine();
+			ImGui::Text(": ");
+            if (players[i].player_busted) {
+                ImGui::Text("Lost - Busted");
+				ImGui::Text("je moet");
+                ImGui::SameLine();
+                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%d", players[i].get_inzet());
+                ImGui::SameLine();
+				ImGui::Text("slokken nemen");
+            }
+            else if (players[i].player_blackjack) {
+                ImGui::Text("Won - Blackjack!");
+                int gewonnen_slokken = static_cast<int>(players[i].get_inzet() * 1.5);
+                ImGui::Text("je mag");
+                ImGui::SameLine();
+                ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "%d", gewonnen_slokken);
+                ImGui::SameLine();
+				ImGui::Text("slokken uitdelen");
+            }
+            else if (dealer.Dealer_busted) {
+                ImGui::Text("Won - Dealer Busted");
+                ImGui::Text("je mag");
+                ImGui::SameLine();
+                ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "%d", players[i].get_inzet());
+                ImGui::SameLine();
+				ImGui::Text("slokken uitdelen");
+            }
+            else if (players[i].get_hand_value() > dealer.get_hand_value()) {
+                ImGui::Text("Won");
+				ImGui::Text("je mag");
+                ImGui::SameLine();
+                ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "%d", players[i].get_inzet());
+                ImGui::SameLine();
+				ImGui::Text("slokken uitdelen");
+            }
+            else if (players[i].get_hand_value() < dealer.get_hand_value()) {
+                ImGui::Text("Lost");
+                ImGui::Text("je moet");
+                ImGui::SameLine();
+                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%d", players[i].get_inzet());
+				ImGui::SameLine();
+				ImGui::Text("slokken nemen");
+            }
+            else {
+                ImGui::Text("Push (Tie)");
+				ImGui::Text("geen slokken");
+			}
+            ImGui::Separator();
+            
+        }
+        ImGui::Separator();
+        ImGui::NewLine();
+
+        // Button 1: Volgende ronde (zelfde spelers, nieuwe inzet)
+        if (ImGui::Button("Volgende Ronde", ImVec2(280, 40))) {
+            // Reset game state
+            game_over_window = false;
+            game_window = false;
+            dealer_window = false;
+            Player_Names_Window = true;  // Terug naar inzet scherm
+			reset = true;
+
+           
+
+            // Reset dealer
+            dealer.kaart_index = 0;
+            dealer.set_hand_value(0);
+            dealer.set_stood(false);
+            dealer.Dealer_busted = false;
+            dealer.verberg_kaart();
+            first_deal = true;
+
+            // Reset players (behoud namen, reset kaarten)
+            for (int i = 0; i < players.size(); i++) {
+                players[i].kaart_index = 0;
+                players[i].set_hand_value(0);
+                players[i].set_stood(false);
+                players[i].player_busted = false;
+                players[i].player_blackjack = false;
+                players[i].player_done = false;
+                // Inzet wordt opnieuw gevraagd in Player_Names_Window
+            }
+        }
+
+        // Button 2: Nieuwe game (alles reset)
+        if (ImGui::Button("Nieuwe Game", ImVec2(280, 40))) {
+            // Reset ALLES
+            game_over_window = false;
+            game_window = false;
+            dealer_window = false;
+            Player_Names_Window = false;
+            player_init_window = true;  // Terug naar aantal spelers
+
+            // Reset dealer
+            dealer.kaart_index = 0;
+            dealer.set_hand_value(0);
+            dealer.set_stood(false);
+            dealer.Dealer_busted = false;
+            dealer.verberg_kaart();
+            first_deal = true;
+
+            // Clear players
+            players.clear();
+            Players = 0;
+
+            // Reset name en inzet buffers
+            for (int i = 0; i < max_players; i++) {
+                memset(name_buffers[i], 0, max_name_length);
+                inzet_buffers[i] = 0;
+            }
+        }
+		ImGui::End();
     }
 }
 

@@ -7,6 +7,8 @@ HitAction::HitAction() : Action("Hit") {}
 
 HitAction::~HitAction() {}
 
+
+
 const char AAS = 'A';
 
 void HitAction::starting_hand(Player& player)
@@ -33,8 +35,11 @@ void HitAction::starting_hand(Player& player)
 
 void HitAction::execute(Player& player) {
  
-    int random_getal = rand() % 13;
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> dis(0, 12);
 
+    int random_getal = dis(gen);  // ← Vervangt rand() % 13
 
     player.Player_kaart[player.kaart_index] = kaarten[random_getal];
     player.kaart_index += 1;
