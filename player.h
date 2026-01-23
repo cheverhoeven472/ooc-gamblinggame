@@ -20,4 +20,7 @@ public:
 	std::string name;
 	int inzet;
 	int hand_value;
+	bool player_busted = false;
+	bool player_blackjack = false;
+	bool player_done = false;
 };

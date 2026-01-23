@@ -60,6 +60,9 @@
     <ClInclude Include="dealer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Photo_handelig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui-1.92.2b\imgui.cpp">

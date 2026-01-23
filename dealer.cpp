@@ -29,28 +29,19 @@ void Dealer::dealer_sequence() {
     
     // 1. Toon de verborgen kaart
     toon_kaart();
-    std::cout << "Dealer toont verborgen kaart!" << std::endl;
+    
     
     // 2. Dealer hit tot 17 of hoger
     while (moet_hitten()) {
-        std::cout << "Dealer heeft " << get_hand_value() << ", moet hitten..." << std::endl;
-        hit.execute(*this);  // ← *this = dit Dealer object (is ook een Player)
+        hit.execute(*this);  
     }
     
     // 3. Dealer stopt
     if (get_hand_value() > 21) {
-        std::cout << "Dealer BUST met " << get_hand_value() << "!" << std::endl;
-    } else {
-        std::cout << "Dealer stopt met " << get_hand_value() << std::endl;
-    }
+		Dealer_busted = true;
+    } 
     
     set_stood(true);
 }
-/*
-void Dealer::reset() {
-    kaart_verborgen = true;
-    kaart_index = 0;
-    set_hand_value(0);
-    set_stood(false);
-}
-    */ 
+
+     

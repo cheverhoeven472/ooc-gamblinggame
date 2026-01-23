@@ -158,6 +158,7 @@ void app::update()
     static bool player_init_window = true;
     static bool Player_Names_Window = false;
     static bool game_window = false;
+    static bool dealer_window = false;
 
     static const int max_name_length = 32;
     static const int max_players = 4;
@@ -207,11 +208,12 @@ void app::update()
         if (ImGui::Button("start")) {
             Player_Names_Window = false;
             game_window = true;
+            dealer_window = true;
             players.clear();
 
             for (int i = 0; i < Players; i++) {
                 Player newPlayer("", i + 1);
-				newPlayer.set_hand_value(0);
+                newPlayer.set_hand_value(0);
                 newPlayer.set_name(name_buffers[i]);
                 newPlayer.set_inzet(inzet_buffers[i]);
                 players.push_back(newPlayer);
@@ -221,11 +223,17 @@ void app::update()
     }
 
     if (game_window) {
-        for (int i = 0; i < players.size(); i++) {
+        static int starting_hand = players.size();
+        for (int i = 0; i < players.size(); i++)//vervangen door itterator 
+        {
             ImGui::SetNextWindowPos(ImVec2(10 + i * 475, 670));
             ImGui::SetNextWindowSize(ImVec2(465, 300));
             ImGui::Begin(("Player " + std::to_string(i + 1) + " - " + players[i].get_name()).c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
+            if (starting_hand > 0) {
+                hitAction.starting_hand(players[i]);
+                starting_hand--;
+            }
 
             // Speler info
             ImGui::Text("Inzet: %d slokken", players[i].get_inzet());
@@ -266,10 +274,101 @@ void app::update()
 
             ImGui::PopID();
 
+			ImGui::Separator();
+
+
+            if(players[i].get_hand_value() == 21 && players[i].kaart_index == 2) {
+                players[i].player_blackjack = true;
+                standAction.execute(players[i]);
+			}
+
+            if(players[i].get_hand_value() > 21) {
+				players[i].player_busted = true;
+                standAction.execute(players[i]);
+            }
+
+            if (players[i].get_hand_value() == 21) {
+                standAction.execute(players[i]);
+            }
+
+            if(players[i].has_stood() && !players[i].player_busted && !players[i].player_blackjack) {
+                ImGui::Text("Stood!");
+			}
+            if(players[i].player_busted) {
+                ImGui::Text("Busted!");
+            }
+
+            else if (players[i].player_blackjack) {
+                ImGui::Text("Blackjack!");
+			}
+
             ImGui::End();
         }
     }
-    
+
+    static Dealer dealer;
+	static bool first_deal = true;
+    if (dealer_window) {
+		static bool all_players_stood = false;
+	    int players_stood_count = 0;
+        ImGui::SetNextWindowSize(ImVec2(465, 300));
+        ImGui::SetNextWindowPos(ImVec2(727, 20));
+        ImGui::Begin("dealer window", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoBringToFrontOnFocus);
+
+        if (first_deal) {
+            hitAction.starting_hand(dealer);
+			first_deal = false;
+        }
+        ImGui::Text("Dealer's Hand: ");
+        ImGui::SameLine();
+
+        // Loop door dealer's kaarten
+        for (int j = 0; j < dealer.kaart_index; j++) {
+            if (j == 0 && dealer.is_kaart_verborgen()) {
+                ImGui::Text("[?]");  // Eerste kaart verborgen
+            }
+            else {
+                ImGui::Text("%c", dealer.Player_kaart[j]);  // ← Object.variabele
+            }
+            ImGui::SameLine();
+        }
+        ImGui::NewLine();
+
+
+        for(int i = 0; i < players.size(); i++) {
+            if (players[i].has_stood()) {
+				players[i].player_done = true;
+            }
+		}
+
+        for (int i = 0; i < players.size(); i++) {
+            if (players[i].player_done) {
+				players_stood_count++;
+            }
+            if (players_stood_count == players.size()) {
+				all_players_stood = true;
+            }
+        }
+
+        if (players_stood_count == players.size()) {
+			all_players_stood = true;
+        }
+
+        if (all_players_stood && !dealer.has_stood()) {
+            dealer.dealer_sequence();
+            
+		}
+        if (dealer.has_stood()) {
+            ImGui::Text("Hand waarde: %d", dealer.get_hand_value());
+            if(dealer.Dealer_busted) {
+                ImGui::Text("Dealer Busted!");
+			}  
+        }
+        
+
+        ImGui::End();
+
+    }
 }
 
 

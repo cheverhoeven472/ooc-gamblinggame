@@ -9,6 +9,28 @@ HitAction::~HitAction() {}
 
 const char AAS = 'A';
 
+void HitAction::starting_hand(Player& player)
+{
+	int hand_waarde_2 = 0;
+    for (int j = 0; j < 2; j++) {
+		int random_getal = rand() % 13;
+		player.Player_kaart[player.kaart_index] = kaarten[random_getal];
+        if (player.Player_kaart[player.kaart_index] == AAS) {
+            hand_waarde_2 += 11;  
+        }
+        else {
+            for (int k = 0; k < 13; k++) {
+                if (player.Player_kaart[player.kaart_index] == kaarten[k]) {
+                    hand_waarde_2 += kaart_waarden[k];
+                    break;
+                }
+            }
+		}
+		player.set_hand_value(hand_waarde_2);
+		player.kaart_index += 1;
+    }
+}
+
 void HitAction::execute(Player& player) {
  
     int random_getal = rand() % 13;

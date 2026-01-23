@@ -10,6 +10,7 @@ public:
     void verberg_kaart();     
     void toon_kaart();        
     bool is_kaart_verborgen();
+    bool Dealer_busted;
 
     bool moet_hitten();
 

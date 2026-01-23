@@ -6,5 +6,7 @@ public:
     HitAction();
     ~HitAction() override;
 
+    void starting_hand(Player& player);
+
     void execute(Player& player) override;  
 };
