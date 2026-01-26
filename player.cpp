@@ -41,3 +41,4 @@ void Player::set_stood(bool value) {
 bool Player::has_stood() {
 	return stood;
 }
+

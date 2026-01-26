@@ -188,6 +188,8 @@ void app::update()
     static std::vector<Player> players;
     static char name_buffers[max_players][max_name_length] = { "" };
     static int inzet_buffers[max_players] = { 0 };
+    std::string temp_names[4];
+    static int starting_hand = players.size();
 
     static HitAction hitAction;
     static StandAction standAction;
@@ -216,6 +218,14 @@ void app::update()
         ImGui::SetNextWindowSize(ImVec2(500, Players * 31 + 55));
         ImGui::Begin("Player Names");
 
+
+        if (reset) {
+            for (int i = 0; i > players.size(); i++) {
+
+                strncpy_s(name_buffers[i], temp_names[i].c_str(), max_name_length - 1);
+                name_buffers[i][max_name_length - 1] = '\0'; // Ensure null-termination
+            }
+        }
         for (int i = 0; i < Players; i++) {
             std::string name_label = "Player " + std::to_string(i + 1) + "##name" + std::to_string(i);
             std::string inzet_label = "inzet##" + std::to_string(i);
@@ -240,12 +250,14 @@ void app::update()
                 newPlayer.set_inzet(inzet_buffers[i]);
                 players.push_back(newPlayer);
             }
+            starting_hand = players.size();
         }
         ImGui::End();
     }
-
+    
+    
     if (game_window) {
-        static int starting_hand = players.size();
+        
         for (int i = 0; i < players.size(); i++)//vervangen door itterator 
         {
             ImGui::SetNextWindowPos(ImVec2(10 + i * 475, 670));
@@ -256,11 +268,7 @@ void app::update()
                 hitAction.starting_hand(players[i]);
                 starting_hand--;
             }
-            if (reset) {
-				starting_hand = players.size();
-				reset = false;
-			}
-
+            
 
             // Speler info
             ImGui::Text("Inzet: %d slokken", players[i].get_inzet());
@@ -358,9 +366,11 @@ void app::update()
 
     static Dealer dealer;
 	static bool first_deal = true;
+    int players_stood_count = 0;
+    static bool all_players_stood = false;
     if (dealer_window) {
-		static bool all_players_stood = false;
-	    int players_stood_count = 0;
+		
+	    
         ImGui::SetNextWindowSize(ImVec2(465, 300));
         ImGui::SetNextWindowPos(ImVec2(727, 20));
         ImGui::Begin("dealer window", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoBringToFrontOnFocus);
@@ -384,7 +394,7 @@ void app::update()
         }
         ImGui::NewLine();
 
-
+       
         for(int i = 0; i < players.size(); i++) {
             if (players[i].has_stood()) {
 				players[i].player_done = true;
@@ -488,61 +498,60 @@ void app::update()
 
         // Button 1: Volgende ronde (zelfde spelers, nieuwe inzet)
         if (ImGui::Button("Volgende Ronde", ImVec2(280, 40))) {
-            // Reset game state
+            // Sla namen op VOORDAT je players.clear() doet
+            for (int i = 0; i < players.size(); i++) {
+                temp_names[i] = players[i].get_name();
+            }
+
+            // Reset game state windows
             game_over_window = false;
             game_window = false;
             dealer_window = false;
-            Player_Names_Window = true;  // Terug naar inzet scherm
-			reset = true;
+            Player_Names_Window = true;
 
-           
+            // Clear players
+            players.clear();
 
-            // Reset dealer
+            // Reset dealer state
             dealer.kaart_index = 0;
             dealer.set_hand_value(0);
             dealer.set_stood(false);
             dealer.Dealer_busted = false;
             dealer.verberg_kaart();
-            first_deal = true;
 
-            // Reset players (behoud namen, reset kaarten)
-            for (int i = 0; i < players.size(); i++) {
-                players[i].kaart_index = 0;
-                players[i].set_hand_value(0);
-                players[i].set_stood(false);
-                players[i].player_busted = false;
-                players[i].player_blackjack = false;
-                players[i].player_done = false;
-                // Inzet wordt opnieuw gevraagd in Player_Names_Window
-            }
+            // ⭐⭐⭐ DEZE 3 REGELS ONTBREKEN! ⭐⭐⭐
+            all_players_stood = false;
+            first_deal = true;
+            starting_hand = 0;
+
+            reset = true;
         }
 
         // Button 2: Nieuwe game (alles reset)
         if (ImGui::Button("Nieuwe Game", ImVec2(280, 40))) {
-            // Reset ALLES
+            // Reset game state windows
+			player_init_window = true;
             game_over_window = false;
             game_window = false;
             dealer_window = false;
             Player_Names_Window = false;
-            player_init_window = true;  // Terug naar aantal spelers
 
-            // Reset dealer
+            // Clear players
+            players.clear();
+
+            // Reset dealer state
             dealer.kaart_index = 0;
             dealer.set_hand_value(0);
             dealer.set_stood(false);
             dealer.Dealer_busted = false;
             dealer.verberg_kaart();
+
+            // ⭐⭐⭐ DEZE 3 REGELS ONTBREKEN! ⭐⭐⭐
+            all_players_stood = false;
             first_deal = true;
+            starting_hand = 0;
 
-            // Clear players
-            players.clear();
-            Players = 0;
-
-            // Reset name en inzet buffers
-            for (int i = 0; i < max_players; i++) {
-                memset(name_buffers[i], 0, max_name_length);
-                inzet_buffers[i] = 0;
-            }
+            reset = true;
         }
 		ImGui::End();
     }
