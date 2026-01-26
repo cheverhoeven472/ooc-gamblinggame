@@ -1,4 +1,6 @@
-﻿#include "app.h"
+﻿#define _CRT_SECURE_NO_WARNINGS
+
+#include "app.h"
 #include "player.h"
 #include <cstdlib>
 #include <string>
@@ -11,8 +13,59 @@
 #include <d3d9.h>
 #include "Photo_handelig.h"
 #include <ctime>  
+#include <thread>
+#include <fstream>
 
+void LogGameResult(std::vector<Player> players, Dealer dealer) {
+    // Kopieer data (niet reference) zodat thread veilig is
 
+    std::ofstream logFile("game_log.txt", std::ios::app);
+
+    if (!logFile.is_open()) return;
+
+    time_t now = time(nullptr);
+    char timeStr[64];
+    strftime(timeStr, sizeof(timeStr), "%d-%m-%Y %H:%M:%S", localtime(&now));
+
+    logFile << "========================================\n";
+    logFile << "Game: " << timeStr << "\n";
+    logFile << "========================================\n";
+    logFile << "Dealer hand: " << dealer.get_hand_value();
+    if (dealer.Dealer_busted) logFile << " (BUSTED)";
+    logFile << "\n----------------------------------------\n";
+
+    for (int i = 0; i < players.size(); i++) {
+        logFile << players[i].get_name() << ": ";
+        logFile << "Hand: " << players[i].get_hand_value() << " | ";
+        logFile << "Inzet: " << players[i].get_inzet() << " slokken | ";
+
+        if (players[i].player_busted) {
+            logFile << "VERLOREN (Busted) - " << players[i].get_inzet() << " slokken nemen";
+        }
+        else if (players[i].player_blackjack) {
+            int gewonnen = static_cast<int>(players[i].get_inzet() * 1.5);
+            logFile << "GEWONNEN (Blackjack!) - " << gewonnen << " slokken uitdelen";
+        }
+        else if (dealer.Dealer_busted) {
+            logFile << "GEWONNEN (Dealer Busted) - " << players[i].get_inzet() << " slokken uitdelen";
+        }
+        else if (players[i].get_hand_value() > dealer.get_hand_value()) {
+            logFile << "GEWONNEN - " << players[i].get_inzet() << " slokken uitdelen";
+        }
+        else if (players[i].get_hand_value() < dealer.get_hand_value()) {
+            logFile << "VERLOREN - " << players[i].get_inzet() << " slokken nemen";
+        }
+        else {
+            logFile << "GELIJK (Push)";
+        }
+        logFile << "\n";
+    }
+
+    logFile << "\n\n";
+    logFile.close();
+
+    // Thread eindigt automatisch hier
+}
 
 // Data
 static LPDIRECT3D9              g_pD3D = nullptr;
@@ -223,7 +276,7 @@ void app::update()
             for (int i = 0; i > players.size(); i++) {
 
                 strncpy_s(name_buffers[i], temp_names[i].c_str(), max_name_length - 1);
-                name_buffers[i][max_name_length - 1] = '\0'; // Ensure null-termination
+                name_buffers[i][max_name_length - 1] = '\0';
             }
         }
         for (int i = 0; i < Players; i++) {
@@ -336,14 +389,14 @@ void app::update()
                 if (players[i].get_inzet() == 1) {
                     ImGui::Text("je moet");
                     ImGui::SameLine();
-                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%d", players[i].get_inzet());  // ← Gebruik %d
+                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%d", players[i].get_inzet());
                     ImGui::SameLine();
                     ImGui::Text("slok nemen");
                 }
 				else if (players[i].get_inzet() > 1) {
                     ImGui::Text("je moet");
                     ImGui::SameLine();
-                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%d", players[i].get_inzet());  // ← Gebruik %d
+                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%d", players[i].get_inzet());
                     ImGui::SameLine();
                     ImGui::Text("slokken nemen");
                 }
@@ -354,7 +407,7 @@ void app::update()
                 int gewonnen_slokken = static_cast<int>(players[i].get_inzet() * 1.5);
                 ImGui::Text("je mag");
                 ImGui::SameLine();
-                ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "%d", gewonnen_slokken);  // ← Gebruik %d
+                ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "%d", gewonnen_slokken); 
                 ImGui::SameLine();
                 ImGui::Text("slokken uitdelen");
             }
@@ -382,13 +435,13 @@ void app::update()
         ImGui::Text("Dealer's Hand: ");
         ImGui::SameLine();
 
-        // Loop door dealer's kaarten
+
         for (int j = 0; j < dealer.kaart_index; j++) {
             if (j == 0 && dealer.is_kaart_verborgen()) {
-                ImGui::Text("[?]");  // Eerste kaart verborgen
+                ImGui::Text("[?]"); 
             }
             else {
-                ImGui::Text("%c", dealer.Player_kaart[j]);  // ← Object.variabele
+                ImGui::Text("%c", dealer.Player_kaart[j]);
             }
             ImGui::SameLine();
         }
@@ -434,8 +487,8 @@ void app::update()
     }
 
     if(game_over_window) {
-        ImGui::SetNextWindowSize(ImVec2(300, 500));
-		ImGui::SetNextWindowPos(ImVec2(50, 150));
+        ImGui::SetNextWindowSize(ImVec2(300, 550));
+		ImGui::SetNextWindowPos(ImVec2(50, 100));
 		ImGui::Begin("Game Over", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoBringToFrontOnFocus);
 		ImGui::Text("Game Over Results:");
 		ImGui::Separator();
@@ -496,9 +549,8 @@ void app::update()
         ImGui::Separator();
         ImGui::NewLine();
 
-        // Button 1: Volgende ronde (zelfde spelers, nieuwe inzet)
         if (ImGui::Button("Volgende Ronde", ImVec2(280, 40))) {
-            // Sla namen op VOORDAT je players.clear() doet
+
             for (int i = 0; i < players.size(); i++) {
                 temp_names[i] = players[i].get_name();
             }
@@ -509,6 +561,8 @@ void app::update()
             dealer_window = false;
             Player_Names_Window = true;
 
+            std::thread(LogGameResult, players, dealer).detach();
+
             // Clear players
             players.clear();
 
@@ -519,7 +573,6 @@ void app::update()
             dealer.Dealer_busted = false;
             dealer.verberg_kaart();
 
-            // ⭐⭐⭐ DEZE 3 REGELS ONTBREKEN! ⭐⭐⭐
             all_players_stood = false;
             first_deal = true;
             starting_hand = 0;
@@ -527,7 +580,7 @@ void app::update()
             reset = true;
         }
 
-        // Button 2: Nieuwe game (alles reset)
+
         if (ImGui::Button("Nieuwe Game", ImVec2(280, 40))) {
             // Reset game state windows
 			player_init_window = true;
@@ -535,6 +588,7 @@ void app::update()
             game_window = false;
             dealer_window = false;
             Player_Names_Window = false;
+            std::thread(LogGameResult, players, dealer).detach();
 
             // Clear players
             players.clear();
@@ -545,14 +599,25 @@ void app::update()
             dealer.set_stood(false);
             dealer.Dealer_busted = false;
             dealer.verberg_kaart();
-
-            // ⭐⭐⭐ DEZE 3 REGELS ONTBREKEN! ⭐⭐⭐
             all_players_stood = false;
             first_deal = true;
             starting_hand = 0;
 
             reset = true;
         }
+
+		static bool log_cleared = false;
+        if (log_cleared) {
+			ImGui::Text("Log cleared!");
+        }
+
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.0f, 0.0f, 1.0f));
+        if (ImGui::Button("Clear Log", ImVec2(280, 25))) {
+            std::ofstream logFile("game_log.txt", std::ios::trunc);
+            logFile.close();
+			log_cleared = true;
+        }
+        ImGui::PopStyleColor();
 		ImGui::End();
     }
 }
