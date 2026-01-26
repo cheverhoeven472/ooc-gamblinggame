@@ -1,21 +1,29 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS
-
+//header files
 #include "app.h"
 #include "player.h"
 #include <cstdlib>
-#include <string>
-#include <vector>
 #include "HitAction.h"
 #include "StandAction.h"
 #include "DoubleDownAction.h"
 #include "dealer.h"
 #include "Action.h"
-#include <d3d9.h>
-#include "Photo_handelig.h"
-#include <ctime>  
-#include <thread>
-#include <fstream>
 
+//extra functie(word nu niet gebruikt)
+#include <d3d9.h>
+#include "Photo_handelig.h" 
+
+//extra libraries
+#include <ctime>  //voor logging en true random seed
+#include <thread> //voor threading
+#include <fstream>//voor logging
+
+//essential libraries
+#include <string>
+#include <vector>
+
+
+// logging functie
 void LogGameResult(std::vector<Player> players, Dealer dealer) {
     // Kopieer data (niet reference) zodat thread veilig is
 
@@ -227,7 +235,6 @@ void app::update()
 {
 
     static bool reset = false;
-    // Alle state variabelen MOETEN static zijn
     static bool player_init_window = true;
     static bool Player_Names_Window = false;
     static bool game_window = false;
@@ -248,8 +255,12 @@ void app::update()
     static StandAction standAction;
     static DoubleDownAction doubleDownAction;
 
-    
+    static Dealer dealer;
+    static bool first_deal = true;
+    int players_stood_count = 0;
+    static bool all_players_stood = false;
 
+    //hoeveelheid spelers invoern
     if (player_init_window) {
         static int Temp_Players = 1;
         ImGui::SetNextWindowSize(ImVec2(250, 120));
@@ -267,6 +278,8 @@ void app::update()
         ImGui::End();
     }
 
+
+    //players aanmaken en inzet invoeren
     if (Player_Names_Window) {
         ImGui::SetNextWindowSize(ImVec2(500, Players * 31 + 55));
         ImGui::Begin("Player Names");
@@ -308,7 +321,7 @@ void app::update()
         ImGui::End();
     }
     
-    
+    //player windows en logic
     if (game_window) {
         
         for (int i = 0; i < players.size(); i++)//vervangen door itterator 
@@ -417,10 +430,9 @@ void app::update()
         }
     }
 
-    static Dealer dealer;
-	static bool first_deal = true;
-    int players_stood_count = 0;
-    static bool all_players_stood = false;
+
+
+    //dealer window en logic
     if (dealer_window) {
 		
 	    
@@ -486,6 +498,8 @@ void app::update()
 
     }
 
+
+    //game end window, game resetting en eindstand logging
     if(game_over_window) {
         ImGui::SetNextWindowSize(ImVec2(300, 550));
 		ImGui::SetNextWindowPos(ImVec2(50, 100));

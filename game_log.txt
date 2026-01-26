@@ -1,0 +1,88 @@
+========================================
+Game: 26-01-2026 19:43:57
+========================================
+Dealer hand: 20
+----------------------------------------
+max: Hand: 7 | Inzet: 2 slokken | VERLOREN - 2 slokken nemen
+senna: Hand: 16 | Inzet: 3 slokken | VERLOREN - 3 slokken nemen
+robin: Hand: 17 | Inzet: 2 slokken | VERLOREN - 2 slokken nemen
+che: Hand: 24 | Inzet: 4 slokken | VERLOREN (Busted) - 4 slokken nemen
+
+
+========================================
+Game: 26-01-2026 19:44:13
+========================================
+Dealer hand: 22 (BUSTED)
+----------------------------------------
+max: Hand: 20 | Inzet: 2 slokken | GEWONNEN (Dealer Busted) - 2 slokken uitdelen
+senna: Hand: 18 | Inzet: 3 slokken | GEWONNEN (Dealer Busted) - 3 slokken uitdelen
+robin: Hand: 17 | Inzet: 2 slokken | GEWONNEN (Dealer Busted) - 2 slokken uitdelen
+che: Hand: 22 | Inzet: 3 slokken | VERLOREN (Busted) - 3 slokken nemen
+
+
+========================================
+Game: 26-01-2026 19:44:56
+========================================
+Dealer hand: 26 (BUSTED)
+----------------------------------------
+max: Hand: 17 | Inzet: 2 slokken | GEWONNEN (Dealer Busted) - 2 slokken uitdelen
+senna: Hand: 24 | Inzet: 3 slokken | VERLOREN (Busted) - 3 slokken nemen
+robin: Hand: 20 | Inzet: 2 slokken | GEWONNEN (Dealer Busted) - 2 slokken uitdelen
+che: Hand: 22 | Inzet: 3 slokken | VERLOREN (Busted) - 3 slokken nemen
+
+
+========================================
+Game: 26-01-2026 19:45:38
+========================================
+Dealer hand: 20
+----------------------------------------
+max: Hand: 18 | Inzet: 2 slokken | VERLOREN - 2 slokken nemen
+senna: Hand: 21 | Inzet: 3 slokken | GEWONNEN - 3 slokken uitdelen
+robin: Hand: 19 | Inzet: 2 slokken | VERLOREN - 2 slokken nemen
+che: Hand: 18 | Inzet: 3 slokken | VERLOREN - 3 slokken nemen
+
+
+========================================
+Game: 26-01-2026 19:46:04
+========================================
+Dealer hand: 20
+----------------------------------------
+max: Hand: 23 | Inzet: 6 slokken | VERLOREN (Busted) - 6 slokken nemen
+senna: Hand: 20 | Inzet: 14 slokken | GELIJK (Push)
+robin: Hand: 20 | Inzet: 8 slokken | GELIJK (Push)
+che: Hand: 20 | Inzet: 18 slokken | GELIJK (Push)
+
+
+========================================
+Game: 26-01-2026 19:46:18
+========================================
+Dealer hand: 20
+----------------------------------------
+max: Hand: 22 | Inzet: 6 slokken | VERLOREN (Busted) - 6 slokken nemen
+senna: Hand: 18 | Inzet: 7 slokken | VERLOREN - 7 slokken nemen
+robin: Hand: 19 | Inzet: 16 slokken | VERLOREN - 16 slokken nemen
+che: Hand: 20 | Inzet: 9 slokken | GELIJK (Push)
+
+
+========================================
+Game: 26-01-2026 19:46:30
+========================================
+Dealer hand: 22 (BUSTED)
+----------------------------------------
+max: Hand: 18 | Inzet: 6 slokken | GEWONNEN (Dealer Busted) - 6 slokken uitdelen
+senna: Hand: 19 | Inzet: 7 slokken | GEWONNEN (Dealer Busted) - 7 slokken uitdelen
+robin: Hand: 20 | Inzet: 8 slokken | GEWONNEN (Dealer Busted) - 8 slokken uitdelen
+che: Hand: 24 | Inzet: 9 slokken | VERLOREN (Busted) - 9 slokken nemen
+
+
+========================================
+Game: 26-01-2026 19:47:56
+========================================
+Dealer hand: 20
+----------------------------------------
+max: Hand: 17 | Inzet: 6 slokken | VERLOREN - 6 slokken nemen
+senna: Hand: 20 | Inzet: 7 slokken | GELIJK (Push)
+robin: Hand: 26 | Inzet: 8 slokken | VERLOREN (Busted) - 8 slokken nemen
+che: Hand: 17 | Inzet: 9 slokken | VERLOREN - 9 slokken nemen
+
+
